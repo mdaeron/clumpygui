@@ -7,7 +7,9 @@ authors = [
     { name = "mdaeron", email = "mathieu@daeron.fr" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "typer>=0.20.0",
+]
 
 [project.scripts]
 clumpygui = "clumpygui:main"
