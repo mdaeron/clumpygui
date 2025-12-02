@@ -1,4 +1,7 @@
 import typer
+from . import clumpycrunch
+from . import D47calib
+from . import D95thermo
 
 app = typer.Typer(
 	add_completion = True,
@@ -27,17 +30,9 @@ def callback(ctx: typer.Context):
 		typer.echo(ctx.get_help())
 		raise typer.Exit()
 
-@app.command(name = "D47calib")
-def D47calib():
-	"""
-	Use D47calib library to convert between carbonate Δ47 and temperature using various calibrations
-	"""
-	print('Hi from D47calib')
+app.add_typer(clumpycrunch.app)
+app.add_typer(D47calib.app)
+app.add_typer(D95thermo.app)
 
-@app.command(name = "D95thermo")
-def D95thermo():
-	print('Hi from D95thermo')
-
-def main() -> None:
+def cli():
 	app()
-	

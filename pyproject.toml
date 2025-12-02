@@ -1,18 +1,18 @@
 [project]
 name = "clumpygui"
-version = "0.1.2"
+version = "0.1.3"
 description = "A collection of clumpy web apps"
 readme = "readme.md"
 authors = [
     { name = "mdaeron", email = "mathieu@daeron.fr" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "typer>=0.20.0",
 ]
 
 [project.scripts]
-clumpygui = "clumpygui:main"
+clumpygui = "clumpygui:cli"
 
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]
