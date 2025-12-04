@@ -1,7 +1,6 @@
+import os
 import typer
-from . import clumpycrunch
-from . import D47calib
-from . import D95thermo
+import subprocess
 
 app = typer.Typer(
 	add_completion = True,
@@ -30,9 +29,13 @@ def callback(ctx: typer.Context):
 		typer.echo(ctx.get_help())
 		raise typer.Exit()
 
-app.add_typer(clumpycrunch.app)
-app.add_typer(D47calib.app)
-app.add_typer(D95thermo.app)
-
+@app.command(name = "clumpycrunch")
+def ClumpyCrunch():
+	"""
+	[Coming soon]
+	"""
+	here = os.path.abspath(os.path.dirname(__file__))
+	subprocess.run(['streamlit', 'run',  f'{here}/clumpycrunch.py'])
+	
 def cli():
 	app()
