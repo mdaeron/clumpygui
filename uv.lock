@@ -106,14 +106,16 @@ source = { editable = "." }
 dependencies = [
     { name = "d47crunch" },
     { name = "streamlit" },
+    { name = "tomlkit" },
     { name = "typer" },
     { name = "watchdog" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "d47crunch", specifier = ">=2.4.3" },
+    { name = "d47crunch", git = "file:///Users/daeron/sDrive/git/D47crunch?rev=master" },
     { name = "streamlit", specifier = "<1.51" },
+    { name = "tomlkit", specifier = ">=0.13.3" },
     { name = "typer", specifier = ">=0.20.0" },
     { name = "watchdog", specifier = ">=6.0.0" },
 ]
@@ -171,8 +173,8 @@ wheels = [
 
 [[package]]
 name = "d47crunch"
-version = "2.4.3"
-source = { registry = "https://pypi.org/simple" }
+version = "2.5.3"
+source = { git = "file:///Users/daeron/sDrive/git/D47crunch?rev=master#f9e105dd1601cb38a28faeb7d76d24ea6684dfa3" }
 dependencies = [
     { name = "lmfit" },
     { name = "matplotlib" },
@@ -180,10 +182,6 @@ dependencies = [
     { name = "rich" },
     { name = "scipy" },
     { name = "typer" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/26/18/05806910cad39adc50212a85f88f43593f63141a019a69bd01a3abd9e7c9/d47crunch-2.4.3.tar.gz", hash = "sha256:248304aaa0d4f125b7fcf7ac68e3db5996cf7333dad2a39c433695ed19341ecb", size = 904627, upload-time = "2025-09-04T12:47:18.045Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/97/8d/c4a99c2aca792d50b57246fbff042e38ed1a4d66241a93d47da8d1be4da0/d47crunch-2.4.3-py3-none-any.whl", hash = "sha256:ae8beb97487deb8adb66ee60604f69f800db7a784b8238adaf3935a72b886974", size = 36792, upload-time = "2025-09-04T12:47:15.878Z" },
 ]
 
 [[package]]
@@ -801,6 +799,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/be/ba/1f744cdc819428fc6b5084ec34d9b30660f6f9daaf70eead706e3203ec3c/toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f", size = 22253, upload-time = "2020-11-01T01:40:22.204Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b", size = 16588, upload-time = "2020-11-01T01:40:20.672Z" },
+]
+
+[[package]]
+name = "tomlkit"
+version = "0.13.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cc/18/0bbf3884e9eaa38819ebe46a7bd25dcd56b67434402b66a58c4b8e552575/tomlkit-0.13.3.tar.gz", hash = "sha256:430cf247ee57df2b94ee3fbe588e71d362a941ebb545dec29b53961d61add2a1", size = 185207, upload-time = "2025-06-05T07:13:44.947Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/75/8539d011f6be8e29f339c42e633aae3cb73bffa95dd0f9adec09b9c58e85/tomlkit-0.13.3-py3-none-any.whl", hash = "sha256:c89c649d79ee40629a9fda55f8ace8c6a1b42deb912b2a8fd8d942ddadb606b0", size = 38901, upload-time = "2025-06-05T07:13:43.546Z" },
 ]
 
 [[package]]

@@ -8,8 +8,10 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "d47crunch>=2.4.3",
+    # "d47crunch>=2.5.3",
+    "d47crunch @ git+file:///Users/daeron/sDrive/git/D47crunch@master",
     "streamlit<1.51",
+    "tomlkit>=0.13.3",
     "typer>=0.20.0",
     "watchdog>=6.0.0",
 ]

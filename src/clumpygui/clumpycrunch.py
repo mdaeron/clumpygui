@@ -42,6 +42,8 @@ def callback_random_data():
 		'd49':     pd.Series([r['d47'] for r in _data_], dtype = 'float'),
 		})
 
+st.set_option("client.toolbarMode", "viewer")
+
 st.set_page_config(
 	page_title = 'ClumpyCrunch',
 	layout = 'wide',
@@ -64,163 +66,196 @@ st.write('''
 
 st.markdown('# ClumpyCrunch')
 
-st.markdown('### Input data')
+with st.container(horizontal = True, horizontal_alignment = 'right'):
+	process_button = st.button('Standardize')
 
-if 'rawdata_df' not in st.session_state:
-	st.session_state.rawdata_df = pd.DataFrame({
-		'UID':     pd.Series([None], dtype = 'str'),
-		'Session': pd.Series([None], dtype = 'str'),
-		'Sample':  pd.Series([None], dtype = 'str'),
-		'd45':     pd.Series([None], dtype = 'float'),
-		'd46':     pd.Series([None], dtype = 'float'),
-		'd47':     pd.Series([None], dtype = 'float'),
-		'd48':     pd.Series([None], dtype = 'float'),
-		'd49':     pd.Series([None], dtype = 'float'),
-	})
+tabs = {}
 
-if st.button("Generate Random Data"):
-	st.session_state.rawdata_df = callback_random_data()
+if process_button:
+	tabs['rawdata'], tabs['settings'], tabs['anchors'], tabs['results'], tabs['plots'] = st.tabs([
+		'Input Data',
+		'Settings',
+		'Ref Materials',
+		'Results',
+		'Plots',
+	])
+else:
+	tabs['rawdata'], tabs['settings'], tabs['anchors'] = st.tabs([
+		'Input Data',
+		'Settings',
+		'Ref Materials',
+	])
 
-st.session_state.rawdata_df = st.data_editor(
-	st.session_state.rawdata_df,
-	num_rows = 'dynamic',
-	use_container_width = True,
-	hide_index = True,
-	column_config = {
-		k: st.column_config.NumberColumn(format = '%.4f')
-		for k in ['d45', 'd46', 'd47', 'd48', 'd49']
-		},
+with tabs['rawdata']:
+	st.markdown('### Input data')
+	
+	if 'rawdata_df' not in st.session_state:
+		st.session_state.rawdata_df = pd.DataFrame({
+			'UID':     pd.Series([None], dtype = 'str'),
+			'Session': pd.Series([None], dtype = 'str'),
+			'Sample':  pd.Series([None], dtype = 'str'),
+			'd45':     pd.Series([None], dtype = 'float'),
+			'd46':     pd.Series([None], dtype = 'float'),
+			'd47':     pd.Series([None], dtype = 'float'),
+			'd48':     pd.Series([None], dtype = 'float'),
+			'd49':     pd.Series([None], dtype = 'float'),
+		})
+	
+	with st.container(horizontal = True, horizontal_alignment = 'right'):
+		if st.button("Generate Random Data"):
+			st.session_state.rawdata_df = callback_random_data()
+	
+	st.session_state.rawdata_df = st.data_editor(
+		st.session_state.rawdata_df,
+		num_rows = 'dynamic',
+		use_container_width = True,
+		hide_index = True,
+		column_config = {
+			k: st.column_config.NumberColumn(format = '%.4f')
+			for k in ['d45', 'd46', 'd47', 'd48', 'd49']
+			},
+		)
+	
+	rawdata = st.session_state.rawdata_df.to_dict('records')
+
+with tabs['settings']:
+	st.markdown("### Data reduction parameters")
+	
+	isoparams = [
+		(
+			'R13_VPDB',
+			0.01118,
+			'13C/12C ratio of VPDB',
+			),
+		(
+			'R18_VSMOW',
+			0.0020052,
+			'18O/16O ratio of VSMOW',
+			),
+		(
+			'R17_VSMOW',
+			0.00038475,
+			'17O/16O ratio of VSMOW',
+			),
+		(
+			'lambda_17',
+			0.528,
+			'Triple oxygen isotope exponent',
+			),
+		(
+			'alpha_18_acid',
+			1.008129,
+			'18O/16O fractionation factor of acid reaction',
+			),
+		]
+	
+	isoparams_df = pd.DataFrame({
+		'Parameter':  pd.Series([_[0] for _ in isoparams],    dtype = 'str'),
+		'Definition': pd.Series([_[2] for _ in isoparams],    dtype = 'str'),
+		'Value':      pd.Series([_[1] for _ in isoparams],    dtype = 'str'),
+		})
+	
+	isoparams_df = st.data_editor(
+		isoparams_df,
+		num_rows = 5,
+		use_container_width = False,
+		hide_index = True,
+		disabled = ('Parameter', 'Definition'),
+		)
+	
+	isoparams = {r['Parameter']: float(r['Value']) for r in isoparams_df.to_dict('records')}
+
+	st.write("### Standardization of bulk composition")
+	
+	_options = (
+		'Affine (“2-pt”) standardization (requires several RMs with sufficient spread of values)',
+		'Constant offset  (requires at least one RMs)',
 	)
-
-rawdata = st.session_state.rawdata_df.to_dict('records')
-
-st.write("### Data reduction parameters")
-
-isoparams = [
-	(
-		'R13_VPDB',
-		0.01118,
-		'13C/12C ratio of VPDB',
-		),
-	(
-		'R18_VSMOW',
-		0.0020052,
-		'18O/16O ratio of VSMOW',
-		),
-	(
-		'R17_VSMOW',
-		0.00038475,
-		'17O/16O ratio of VSMOW',
-		),
-	(
-		'lambda_17',
-		0.528,
-		'Triple oxygen isotope exponent',
-		),
-	(
-		'alpha_18_acid',
-		1.008129,
-		'18O/16O fractionation factor of acid reaction',
-		),
-	]
-
-isoparams_df = pd.DataFrame({
-	'Parameter':  pd.Series([_[0] for _ in isoparams],    dtype = 'str'),
-	'Definition': pd.Series([_[2] for _ in isoparams],    dtype = 'str'),
-	'Value':      pd.Series([_[1] for _ in isoparams],    dtype = 'str'),
-	})
-
-isoparams_df = st.data_editor(
-	isoparams_df,
-	num_rows = 5,
-	use_container_width = False,
-	hide_index = True,
-	disabled = ('Parameter', 'Definition'),
-	)
-
-isoparams = {r['Parameter']: float(r['Value']) for r in isoparams_df.to_dict('records')}
-
-st.write("""
-### Reference Materials
-The following samples are used as anchors to standardize δ<sup>13</sup>C<sub>VPDB</sub>, δ<sup>18</sup>O<sub>VPDB</sub>, Δ<sub>47</sub>, and Δ<sub>48</sub> values:
-""", unsafe_allow_html = True)	
-
-anchors = {}
-
-for s in D47crunch.D4xdata().Nominal_d13C_VPDB:
-	if s not in anchors:
-		anchors[s] = {}
-	anchors[s]['d13C_VPDB'] = f'{D47crunch.D4xdata().Nominal_d13C_VPDB[s]:.2f}'
-
-for s in D47crunch.D4xdata().Nominal_d18O_VPDB:
-	if s not in anchors:
-		anchors[s] = {}
-	anchors[s]['d18O_VPDB'] = f'{D47crunch.D4xdata().Nominal_d18O_VPDB[s]:.2f}'
-
-for s in D47crunch.D47data().Nominal_D47:
-	if s not in anchors:
-		anchors[s] = {}
-	anchors[s]['D47'] = f'{D47crunch.D47data().Nominal_D47[s]:.4f}'
-
-for s in D47crunch.D48data().Nominal_D48:
-	if s not in anchors:
-		anchors[s] = {}
-	anchors[s]['D48'] = f'{D47crunch.D48data().Nominal_D48[s]:.3f}'
-
-with st.expander('Instructions'):
-	st.write(
-		"""
-Each row corresponds to a given sample which may be used as a standardization anchor for
-any combination of δ<sup>13</sup>C<sub>VPDB</sub>, δ<sup>18</sup>O<sub>VPDB</sub>,
-Δ<sub>47</sub>, and/or Δ<sub>48</sub>, simply by specifying the nominal value for each
-sample in the relevant column.
-""",
-		unsafe_allow_html = True,
+	
+	d1xX_stdz_df = pd.DataFrame({
+			'Quantity':     pd.Series(['δ13C', 'δ18O'],    dtype = 'str'),
+			'Method':     pd.Series((_options[0], _options[0]),    dtype = 'str'),
+			})
+	
+	d1xX_stdz_methods = st.data_editor(
+		d1xX_stdz_df,
+		num_rows = 2,
+		use_container_width = False,
+		hide_index = True,
+		disabled = ('Quantity',),
+		column_config = {
+			'Quantity': st.column_config.TextColumn(
+				'Quantity',
+				disabled = True,
+				width = 'small',
+				),
+			'Method': st.column_config.SelectboxColumn(
+				'Method',
+				help = 'Which standardization method to use',
+				width = 600,
+				required = True,
+				options = _options,
+				),
+			},
 		)
 
-anchors_df = pd.DataFrame({
-	'Sample':    pd.Series([s for s in anchors], dtype = 'str'),
-	'd13C_VPDB': pd.Series([anchors[s]['d13C_VPDB'] if 'd13C_VPDB' in anchors[s] else None for s in anchors], dtype = 'str'),
-	'd18O_VPDB': pd.Series([anchors[s]['d18O_VPDB'] if 'd18O_VPDB' in anchors[s] else None for s in anchors], dtype = 'str'),
-	'D47':       pd.Series([anchors[s]['D47'] if 'D47' in anchors[s] else None for s in anchors], dtype = 'str'),
-	'D48':       pd.Series([anchors[s]['D48'] if 'D48' in anchors[s] else None for s in anchors], dtype = 'str'),
-	})
-
-anchors_df = st.data_editor(
-	anchors_df,
-	num_rows = 'dynamic',
-	use_container_width = False,
-	hide_index = True,
+with tabs['anchors']:
+	st.markdown("### Reference Materials")
+	st.write(
+		"The following samples are used as anchors to standardize δ<sup>13</sup>C<sub>VPDB</sub>, δ<sup>18</sup>O<sub>VPDB</sub>, Δ<sub>47</sub>, and Δ<sub>48</sub> values:",
+		unsafe_allow_html = True,
 	)
-
-anchors = anchors_df.to_dict('records')
-anchors = [{k: r[k] for k in r if not pd.isnull(r[k])} for r in anchors]
-
-st.write("### Standardization of bulk composition :red[(not yet implemented)]")
-
-d1xX_stdz_df = pd.DataFrame({
-		'Quantity':     pd.Series(['δ13C', 'δ18O'],    dtype = 'str'),
-		'Method':     pd.Series(['Affine transformation', 'Affine transformation'],    dtype = 'str'),
-		})
-
-d1xX_stdz_methods = st.data_editor(
-	d1xX_stdz_df,
-	num_rows = 2,
-	use_container_width = False,
-	hide_index = True,
-	disabled = ('Quantity',),
-	column_config = {
-		'Method': st.column_config.SelectboxColumn(
-			'Method',
-			help = 'Which standardization method to use',
-			width = 'medium',
-			required = True,
-			options=['Affine transformation', 'Constant offset'],
+	
+	anchors = {}
+	
+	for s in D47crunch.D4xdata().Nominal_d13C_VPDB:
+		if s not in anchors:
+			anchors[s] = {}
+		anchors[s]['d13C_VPDB'] = f'{D47crunch.D4xdata().Nominal_d13C_VPDB[s]:.2f}'
+	
+	for s in D47crunch.D4xdata().Nominal_d18O_VPDB:
+		if s not in anchors:
+			anchors[s] = {}
+		anchors[s]['d18O_VPDB'] = f'{D47crunch.D4xdata().Nominal_d18O_VPDB[s]:.2f}'
+	
+	for s in D47crunch.D47data().Nominal_D47:
+		if s not in anchors:
+			anchors[s] = {}
+		anchors[s]['D47'] = f'{D47crunch.D47data().Nominal_D47[s]:.4f}'
+	
+	for s in D47crunch.D48data().Nominal_D48:
+		if s not in anchors:
+			anchors[s] = {}
+		anchors[s]['D48'] = f'{D47crunch.D48data().Nominal_D48[s]:.3f}'
+	
+	with st.expander('Instructions'):
+		st.write(
+			"""
+	Each row corresponds to a given sample which may be used as a standardization anchor for
+	any combination of δ<sup>13</sup>C<sub>VPDB</sub>, δ<sup>18</sup>O<sub>VPDB</sub>,
+	Δ<sub>47</sub>, and/or Δ<sub>48</sub>, simply by specifying the nominal value for each
+	sample in the relevant column.
+	""",
+			unsafe_allow_html = True,
 			)
-		},
-	)
-
-process_button = st.button(':red[Process data]')
+	
+	anchors_df = pd.DataFrame({
+		'Sample':    pd.Series([s for s in anchors], dtype = 'str'),
+		'd13C_VPDB': pd.Series([anchors[s]['d13C_VPDB'] if 'd13C_VPDB' in anchors[s] else None for s in anchors], dtype = 'str'),
+		'd18O_VPDB': pd.Series([anchors[s]['d18O_VPDB'] if 'd18O_VPDB' in anchors[s] else None for s in anchors], dtype = 'str'),
+		'D47':       pd.Series([anchors[s]['D47'] if 'D47' in anchors[s] else None for s in anchors], dtype = 'str'),
+		'D48':       pd.Series([anchors[s]['D48'] if 'D48' in anchors[s] else None for s in anchors], dtype = 'str'),
+		})
+	
+	anchors_df = st.data_editor(
+		anchors_df,
+		num_rows = 'dynamic',
+		use_container_width = False,
+		hide_index = True,
+		)
+	
+	anchors = anchors_df.to_dict('records')
+	anchors = [{k: r[k] for k in r if not pd.isnull(r[k])} for r in anchors]
 
 if process_button:
 
@@ -248,60 +283,54 @@ if 'data_has_been_brocessed' in st.session_state:
 
 	rawdata47 = st.session_state['rawdata47']
 
-	st.write('### Results')
+	with tabs['results']:
+		st.write('### Results')
+	
+		st.write('#### Table of samples')
+		table_of_samples = D47crunch.table_of_samples(rawdata47, output = 'raw')
+		table_of_samples = [[b for a,b in zip(table_of_samples[0], l) if a != 'p_Levene'] for l in table_of_samples]
+		st.data_editor(
+			pd.DataFrame(
+				table_of_samples[1:],
+				columns = table_of_samples[0],
+				),
+			hide_index = True,
+			disabled = table_of_samples[0],
+			)
+	
+		st.write('#### Table of sessions')
+		table_of_sessions = D47crunch.table_of_sessions(rawdata47, output = 'raw')
+		st.data_editor(
+			pd.DataFrame(
+				table_of_sessions[1:],
+				columns = table_of_sessions[0],
+				),
+			hide_index = True,
+			disabled = table_of_sessions[0],
+			)
+	
+		st.write('#### Table of analyses')
+		table_of_analyses = D47crunch.table_of_analyses(rawdata47, output = 'raw')
+		st.data_editor(
+			pd.DataFrame(
+				table_of_analyses[1:],
+				columns = table_of_analyses[0],
+				),
+			hide_index = True,
+			disabled = table_of_analyses[0],
+			)
 
-	st.write('#### Table of samples')
-	table_of_samples = D47crunch.table_of_samples(rawdata47, output = 'raw')
-	table_of_samples = [[b for a,b in zip(table_of_samples[0], l) if a != 'p_Levene'] for l in table_of_samples]
-	st.data_editor(
-		pd.DataFrame(
-			table_of_samples[1:],
-			columns = table_of_samples[0],
-			),
-		hide_index = True,
-		disabled = table_of_samples[0],
-		)
+	with tabs['plots']:
+		st.write('### Δ<sub>47</sub> Residuals', unsafe_allow_html = True)
+		rpfig = rawdata47.plot_residuals(kde = True, savefig = False)
+		st.pyplot(rpfig, use_container_width = False, dpi = 100)
 
-	st.write('#### Table of sessions')
-	table_of_sessions = D47crunch.table_of_sessions(rawdata47, output = 'raw')
-	st.data_editor(
-		pd.DataFrame(
-			table_of_sessions[1:],
-			columns = table_of_sessions[0],
-			),
-		hide_index = True,
-		disabled = table_of_sessions[0],
-		)
-
-	st.write('#### Table of analyses')
-	table_of_analyses = D47crunch.table_of_analyses(rawdata47, output = 'raw')
-	st.data_editor(
-		pd.DataFrame(
-			table_of_analyses[1:],
-			columns = table_of_analyses[0],
-			),
-		hide_index = True,
-		disabled = table_of_analyses[0],
-		)
-
-# 	st.write('#### Correlations between sample Δ47 errors')
-# 	table_of_samples = D47crunch.table_of_samples(rawdata47, output = 'raw')
-# 	table_of_samples = [[b for a,b in zip(table_of_samples[0], l) if a != 'p_Levene'] for l in table_of_samples]
-# 	st.data_editor(
-# 		pd.DataFrame(
-# 			table_of_samples[1:],
-# 			columns = table_of_samples[0],
-# 			),
-# 		hide_index = True,
-# 		disabled = table_of_samples[0],
-# 		)
-
-	st.write('#### Sessions plots')
-	plots = {}
-	for session in rawdata47.sessions:
-		sp = rawdata47.plot_single_session(session, xylimits = 'constant')
-		st.pyplot(sp.fig, use_container_width = False, dpi = 100)
-		plots[session] = sp.fig
+		st.write('### Δ<sub>47</sub> Sessions plots', unsafe_allow_html = True)
+		plots = {}
+		for session in rawdata47.sessions:
+			sp = rawdata47.plot_single_session(session, xylimits = 'constant')
+			st.pyplot(sp.fig, use_container_width = False, dpi = 100)
+			plots[session] = sp.fig
 
 	buf = io.BytesIO()
 
@@ -321,6 +350,7 @@ Contents:
 		dl_zip.writestr('analyses.csv', '\n'.join([','.join(l) for l in table_of_analyses]))
 		dl_zip.writestr('anchors.csv', anchors_df.to_csv(index = False))
 		dl_zip.writestr('isoparams.csv', isoparams_df.to_csv(index = False))
+		dl_zip.writestr('D47_correl.csv', rawdata47.save_D47_correl(save_to_file = False))
 		dl_zip.writestr('rawdata.csv', st.session_state.rawdata_df.to_csv(index = False))
 		dl_zip.writestr('readme.txt', readme[1:])
 		for session in rawdata47.sessions:
@@ -328,7 +358,6 @@ Contents:
 			plots[session].savefig(plotbuf, format='pdf')
 			plotbuf.seek(0)
 			dl_zip.writestr(f'D47_{session}.pdf', plotbuf.read())
-
 
 	st.download_button(
 		label = 'Download zip',
