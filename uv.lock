@@ -113,7 +113,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "d47crunch", git = "file:///Users/daeron/sDrive/git/D47crunch?rev=master" },
+    { name = "d47crunch", specifier = ">=2.5.3" },
     { name = "streamlit", specifier = "<1.51" },
     { name = "tomlkit", specifier = ">=0.13.3" },
     { name = "typer", specifier = ">=0.20.0" },
@@ -174,7 +174,7 @@ wheels = [
 [[package]]
 name = "d47crunch"
 version = "2.5.3"
-source = { git = "file:///Users/daeron/sDrive/git/D47crunch?rev=master#f9e105dd1601cb38a28faeb7d76d24ea6684dfa3" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lmfit" },
     { name = "matplotlib" },
@@ -182,6 +182,10 @@ dependencies = [
     { name = "rich" },
     { name = "scipy" },
     { name = "typer" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b4/71/11a52a5bfbc80cbf1bdec5dc6fec3828bdc439085700ec11b24d23fe3c27/d47crunch-2.5.3.tar.gz", hash = "sha256:ec19271fdea9ff8f5decb260fd5edfa1fcf15bc73f6b9ab661414fe812e33744", size = 915860, upload-time = "2025-12-15T22:00:23.753Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/57/c1b59b16b9ec444fe9509986cc0de76ff54030f56e96eb826de5435ffa49/d47crunch-2.5.3-py3-none-any.whl", hash = "sha256:86651de0b555439bfeb369e222cf0ae85d257b98cc2ac0ba112d969348a90ef9", size = 37723, upload-time = "2025-12-15T22:00:21.067Z" },
 ]
 
 [[package]]
